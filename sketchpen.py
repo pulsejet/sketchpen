@@ -6,6 +6,11 @@ import turtle
 from sklearn.cluster import KMeans
 import random
 
+THRESHOLD = 60
+SKIP = 4
+FAST = False
+BLACK_FIRST = False
+
 def centercrop(im):
     width, height = im.size
     nd = min(width, height)
@@ -42,9 +47,6 @@ class Edge:
             tpl = (self.xs[i-1], self.ys[i-1], self.xs[i], self.ys[i])
             fll = int(self.col[i])
             d.line(tpl, fill=fll, width=w)
-
-THRESHOLD = 60
-SKIP = 4
 
 def gettrace(arr):
     edges = []
@@ -90,7 +92,7 @@ def gettrace(arr):
 
 def turtledraw(edges, arr):
     wn = turtle.Screen()
-    turtle.setup(arr.shape[1] * 1.1, arr.shape[0] * 1.1)
+    turtle.setup(arr.shape[1] * 1, arr.shape[0] * 1)
     wn.bgcolor("white")
     wn.title("Turtle")
     t = turtle.Turtle()
@@ -136,6 +138,10 @@ def turtledraw(edges, arr):
             traces_clustered[cc] += [traces[cc][i] for i, x in enumerate(labels) if x == lbl]
 
     print('Drawing')
+
+    if BLACK_FIRST:
+        keys = reversed(keys)
+
     for cc in tqdm(keys):
         turtle.tracer(0, 0)
         i = 0
@@ -147,9 +153,11 @@ def turtledraw(edges, arr):
             gotoxy(line[2], line[3])
 
             i += 1
-            if i > 1:
-                turtle.update()
+            if i > 1 and not FAST:
                 i = 0
+                turtle.update()
+
+        turtle.update()
 
     t.up()
     gotoxy(1000,1000)
